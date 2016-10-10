@@ -62,7 +62,7 @@ void load_program_memory(char *file_name) {
     printf("Error opening input mem file\n");
     exit(1);
   }
-  while(fscanf(fp, "%x %x", &address, &instruction) != EOF) {
+  while( fscanf(fp, "%x %x", &address, &instruction) != EOF) {
     write_word(MEM, address, instruction);
   }
   fclose(fp);
