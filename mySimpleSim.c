@@ -98,7 +98,29 @@ void fetch()
 }
 //reads the instruction register, reads operand1, operand2 fromo register file, decides the operation to be performed in execute stage
 void decode() 
-{
+{int e;
+if(isRet){
+
+operand1=r[15];
+
+}
+else{
+
+e=((instruction_word & 0x00001e00)>>9);
+
+operand1=r[e];
+}
+if(isSt){
+
+e=((instruction_word & 0x000001e0)>>5);
+operand2=r[e];
+}
+else{
+
+e=((instruction_word & 0x0001e000)>>13);
+
+operand2=r[e];
+}
 }
 //executes the ALU operation based on ALUop
 void execute() {
