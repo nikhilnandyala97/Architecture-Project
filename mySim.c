@@ -25,7 +25,7 @@ static int PC=-4;
 static int gt,eq;
 //memory
 static unsigned char MEM[4000];
-
+static int immediate;
 //intermediate datapath and control path signals
 static unsigned int instruction_word;
 static unsigned int operand1;
