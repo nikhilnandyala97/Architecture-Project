@@ -1,4 +1,4 @@
-*
+/*
 The project is developed as part of Computer Architecture class
 Project Name: Functional/Pipeline Simulator for simpleRISC Processor
 Developer's Name:
