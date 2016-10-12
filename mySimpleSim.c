@@ -1,13 +1,9 @@
-
-/*
-
+*
 The project is developed as part of Computer Architecture class
 Project Name: Functional/Pipeline Simulator for simpleRISC Processor
-
 Developer's Name:
 Developer's Email id:
 Date:
-
 */
 
 /* mySimpleSim.cpp
@@ -25,7 +21,7 @@ static int PC=-4;
 static int gt,eq;
 //memory
 static unsigned char MEM[4000];
-
+static int immediate;
 //intermediate datapath and control path signals
 static unsigned int instruction_word;
 static unsigned int operand1;
@@ -62,7 +58,7 @@ void load_program_memory(char *file_name) {
     printf("Error opening input mem file\n");
     exit(1);
   }
-  while(fscanf(fp, "%x %x", &address, &instruction) != EOF) {
+  while( fscanf(fp, "%x %x", &address, &instruction) != EOF) {
     write_word(MEM, address, instruction);
   }
   fclose(fp);
@@ -99,7 +95,6 @@ void fetch()
 	instruction_word=*a;	
 	
 }
-//reads the instruction register, reads operand1, operand2 fromo register file, decides the operation to be performed in execute stage
 void decode() 
 {int e;
 if(isRet){
@@ -109,14 +104,47 @@ operand1=r[15];
 }
 else{
 
-e=((instruction_word & 0x00001e00)>>9);
+e=((instruction_word & 0x003c0000)>>18);
 
-opeelse{
+operand1=r[e];
+}
+if(isSt){
 
-e=((instruction_word & 0x0001e000)>>13);
+e=((instruction_word & 0x03c00000)>>22);
+operand2=r[e];
+}
+else{
+
+e=((instruction_word & 0x0003c000)>>14);
 
 operand2=r[e];
 }
+ if(isImm){
+ if(((instruction_word & 0x00030000)>>16)==0){
+ imm=(instruction_word & 0x0000ffff);
+	 
+ 
+ }
+ if(((instruction_word & 0x00030000)>>16)==1){
+ imm=(instruction_word | 0xffff0000);
+	 
+ 
+ }
+ if(((instruction_word & 0x00030000)>>16)==2){
+ imm=(instruction_word)<<16;
+	 
+ 
+ }
+ 
+ }
+ if(isBranchTaken){
+ 
+ 
+ 
+ }
+ 
+ 
+ 
 }
 //executes the ALU operation based on ALUop
 
