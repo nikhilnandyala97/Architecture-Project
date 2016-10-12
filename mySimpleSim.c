@@ -32,6 +32,7 @@ static int isImm;
 static int isADD;
 static int isSUB;
 static int branchTarget;
+static int imm;
 void run_simplesim() {
   while(1) {
     fetch();
@@ -53,6 +54,7 @@ void reset_proc() {
 void load_program_memory(char *file_name) {
   FILE *fp;
   unsigned int address, instruction;
+	
   fp = fopen(file_name, "r");
   if(fp == NULL) {
     printf("Error opening input mem file\n");
@@ -138,9 +140,14 @@ operand2=r[e];
  
  }
  if(isBranchTaken){
- 
- 
- 
+ branchPC=((instruction_word)& 0x07ffffff)<<2 ;
+if(( branchPC & 0x10000000)>0){
+     branchPC=(branchPC)|0xe0000000);
+}	 
+ if(( branchPC & 0x10000000)>0){
+     branchPC=(branchPC)|0x00000000);
+ }
+branchPC=PC+branchPC;	 
  }
  
  
@@ -152,13 +159,7 @@ operand2=r[e];
  
  
 //perform the memory operation
-rand1=r[e];
-}
-if(isSt){
 
-e=((instruction_word & 0x000001e0)>>5);
-operand2=r[e];
-}
 void execute() 
 {
 	unsigned int a=instruction_word;
@@ -204,6 +205,11 @@ void execute()
 }
 
 void mem() {
+	
+	
+	
+	
+	
 }
 //writes the results back to register file
 void write_back() {
