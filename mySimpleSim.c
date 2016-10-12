@@ -14,6 +14,22 @@ Date:
 #include <stdlib.h>
 #include <stdio.h>
 
+//Register file/*
+The project is developed as part of Computer Architecture class
+Project Name: Functional/Pipeline Simulator for simpleRISC Processor
+Developer's Name:
+Developer's Email id:
+Date:
+*/
+
+/* mySimpleSim.cpp
+   Purpose of this file: implementation file for mySimpleSim
+*/
+
+#include "mySimpleSim.h"
+#include <stdlib.h>
+#include <stdio.h>
+
 //Register file
 static unsigned int R[16];
 static int PC=-4;
@@ -29,8 +45,28 @@ static unsigned int operand2;
 static int branchPC;
 static int isBranchTaken;
 static int isImm;
-static int isADD;
-static int isSUB;
+static int isAdd;
+static int isSub;
+static int isMul;
+static int isDiv;
+static int isMod;
+static int isLsl;
+static int isLsr;
+static int isAsr;
+static int isOr;
+static int isAnd;
+static int isNot;
+static int isMov;
+static int isSt;
+static int isLd;
+static int isBeq;
+static int isBgt;
+static int isRet;
+static int isWb;
+static int isUBranch;
+static int isCall;
+static int imm;
+static int aluResult;
 static int branchTarget;
 void run_simplesim() {
   while(1) {
@@ -161,44 +197,125 @@ operand2=r[e];
 }
 void execute() 
 {
-	unsigned int a=instruction_word;
-	if(a>>31==1)
-	{	
-		int x=a>>27;
-		int first=(x==18);  /*b */
-		int second=(x==16); /* beq*/
-		int third=(x==17);  /* bgt */
-		int second=(second)&&(eq);
-		int third=(third)&&(gt);
-		int fourth=(x==19); /*call*/
-		int fifth=(x==20)   /*return*/
-		if(first||second||third||fourth||fifth)
-		{
-			isBranchTaken=1;
-		}	
-		else
-		{
-			isBranchTaken=0;
-		}
-	}
-	else
-	{
-	 isBranchTaken=0;
-	}
-
-
-	if(isRet)      /*Updating Branch PC*/
-	branchPC=branchTarget;
-	else
-	branchPC=operand1;
 	
-	/*ALU STARTS HERE*/
-	int A=operand1
-	int B;
-	if(isImm)
-	   B=immx;
+	/*1 st Part*/
+	if(isRet)
+	branchPC=operand1;
 	else
-	   B=operand2;
+        branchPC=branchTarget;
+
+        /*2 nd Part*/
+	if(isUBranch||(isBeq&&eq)||(isBgt&&gt))
+	isBranchTaken=1;
+	else 
+	isBranchTaken=0;
+
+	/*ALU PART */
+	int A,B;	
+	if(isImm==1)
+	B=imm;
+	else
+	B=operand2;
+	A=operand1;
+	if(isMul)
+	{
+	aluResult=A*B;
+	return;
+	}
+	else if(isDiv)
+	{
+	aluResult=A/B;
+	return;
+	}
+	else if(isMod)
+	{
+	aluResult=A%B;
+	return;
+	}
+	else if(isOr)
+	{
+	aluResult=A|B;
+	return;
+	}
+	
+	else if(isNot)
+	{
+	aluResult=A|B; /*HAVE TO DO*/
+	return;
+	}
+	
+	else if(isMov) /*HAVE TO DO*/
+	{
+	aluResult=A|B;
+	return;
+	}
+	
+	else if(isAnd)
+	{
+	aluResult=A&B;
+	return;
+	}
+
+	else if(isAdd)
+	{
+	aluResult=A+B;
+	return;
+	}
+
+	else if(isSub)
+	{
+	aluResult=A-B;
+	return;
+	}
+
+	else if(isCmp)
+	{
+	if(A>B)
+	{
+	   eq=0;
+	   gt=1;	
+	}
+	else if(A==B)
+	{
+	   eq=1;
+	   gt=0;
+	}
+	return;
+	}
+	
+	else if(isLd)  /*HAVE TO DO*/
+	{
+	aluResult=A|B;
+	return;
+	}
+	
+	else if(isSt)
+	{
+	aluResult=A|B;
+	return;
+	}
+	
+	else if(isLsl)
+	{
+	aluResult=A<<B;
+	return;
+	}
+	
+	else if(isLsr)
+	{
+	aluResult=A>>B;
+	return;
+	}
+	
+	else if(isAsr)
+	{
+	unsigned int a=A|0x80000000;
+	unsigned int b=A<<1;
+	b=b>>B;
+	b=b|a;
+	aluResult=A|B;
+	return;
+	}
 	   
 	
 }
