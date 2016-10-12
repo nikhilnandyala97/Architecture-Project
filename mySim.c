@@ -43,28 +43,28 @@ static unsigned int instruction_word;
 static unsigned int operand1;
 static unsigned int operand2;
 static int branchPC;
-static int isBranchTaken;
-static int isImm;
-static int isAdd;
-static int isSub;
-static int isMul;
-static int isDiv;
-static int isMod;
-static int isLsl;
-static int isLsr;
-static int isAsr;
-static int isOr;
-static int isAnd;
-static int isNot;
-static int isMov;
-static int isSt;
-static int isLd;
-static int isBeq;
-static int isBgt;
-static int isRet;
-static int isWb;
-static int isUBranch;
-static int isCall;
+static bool isBranchTaken;
+static bool isImm;
+static bool isAdd;
+static bool isSub;
+static bool isMul;
+static bool isDiv;
+static bool isMod;
+static bool isLsl;
+static bool isLsr;
+static bool isAsr;
+static bool isOr;
+static bool isAnd;
+static bool isNot;
+static bool isMov;
+static bool isSt;
+static bool isLd;
+static bool isBeq;
+static bool isBgt;
+static bool isRet;
+static bool isWb;
+static bool isUBranch;
+static bool isCall;
 static int imm;
 static int aluResult;
 static int branchTarget;
@@ -83,6 +83,9 @@ void run_simplesim() {
 // it is used to set the reset values
 //reset all registers and memory content to 0
 void reset_proc() {
+	
+	
+	
 
 }
 
