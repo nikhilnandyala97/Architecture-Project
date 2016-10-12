@@ -14,7 +14,8 @@ Date:
 #include <stdlib.h>
 #include <stdio.h>
 
-//Register file/*
+//Register file
+/*
 The project is developed as part of Computer Architecture class
 Project Name: Functional/Pipeline Simulator for simpleRISC Processor
 Developer's Name:
@@ -43,31 +44,33 @@ static unsigned int instruction_word;
 static unsigned int operand1;
 static unsigned int operand2;
 static int branchPC;
-static int isBranchTaken;
-static int isImm;
-static int isAdd;
-static int isSub;
-static int isMul;
-static int isDiv;
-static int isMod;
-static int isLsl;
-static int isLsr;
-static int isAsr;
-static int isOr;
-static int isAnd;
-static int isNot;
-static int isMov;
-static int isSt;
-static int isLd;
-static int isBeq;
-static int isBgt;
-static int isRet;
-static int isWb;
-static int isUBranch;
-static int isCall;
+static bool isBranchTaken;
+static bool isImm;
+static bool isAdd;
+static bool isSub;
+static bool isMul;
+static bool isDiv;
+static bool isMod;
+static bool isLsl;
+static bool isLsr;
+static bool isAsr;
+static bool isOr;
+static bool isAnd;
+static bool isNot;
+static bool isMov;
+static bool isSt;
+static bool isLd;
+static bool isBeq;
+static bool isBgt;
+static bool isRet;
+static bool isWb;
+static bool isUBranch;
+static bool isCall;
 static int imm;
 static int aluResult;
 static int branchTarget;
+//static int imm;
+static int LdResult;
 void run_simplesim() {
   while(1) {
     fetch();
@@ -81,6 +84,9 @@ void run_simplesim() {
 // it is used to set the reset values
 //reset all registers and memory content to 0
 void reset_proc() {
+	
+	
+	
 
 }
 
@@ -131,6 +137,190 @@ void fetch()
 	instruction_word=*a;	
 	
 }
+void control()
+{
+	if(instruction_word>>27==15)
+	{
+	  isSt=true;
+	}
+	else
+	{
+	  isSt=false;
+	}
+	if(instruction_word>>27==14)
+	{
+	  isLd=true;
+	}
+	else
+	{
+	  isLd=false;
+	}
+	if(instruction_word>>27==16)
+	{
+	  isBeq=true;
+	}
+	else
+	{
+	  isBeq=false;
+	}
+	if(instruction_word>>27==17)
+	{
+	  isBgt=true;
+	}
+	else
+	{
+	  isBgt=false;
+	}
+	if(instruction_word>>27==20)
+	{
+	  isRet=true;
+	}
+	else
+	{
+	  isRet=false;
+	}
+	if((instruction_word|0x04000000)>0)
+	{
+	  isImm=true;
+	}
+	else
+	{
+	  isImm=false;
+	}
+	
+	if(instruction_word>>27==18)
+	{
+	  isUBranch=true;
+	}
+	else
+	{
+	  isUBranch=false;
+	}
+	if(instruction_word>>27==19)
+	{
+	  isCall=true;
+	}
+	else
+	{
+	  isCall=false;
+	}
+	if(instruction_word>>27==0)
+	{
+	  isAdd=true;
+	}
+	else
+	{
+	  isAdd=false;
+	}
+	if(instruction_word>>27==1)
+	{
+	  isSub=true;
+	}
+	else
+	{
+	  isSub=false;
+	}
+	if(instruction_word>>27==2)
+	{
+	  isMul=true;
+	}
+	else
+	{
+	  isMul=false;
+	}
+	if(instruction_word>>27==3)
+	{
+	  isDiv=true;
+	}
+	else
+	{
+	  isDiv=false;
+	}
+	if(instruction_word>>27==4)
+	{
+	  isMod=true;
+	}
+	else
+	{
+	  isMod=false;
+	}
+	if(instruction_word>>27==5)
+	{
+	  isCmp=true;
+	}
+	else
+	{
+	  isCmp=false;
+	}
+	if(instruction_word>>27==10)
+	{
+	  isLsl=true;
+	}
+	else
+	{
+	  isLsl=false;
+	}
+	if(instruction_word>>27==11)
+	{
+	  isLsr=true;
+	}
+	else
+	{
+	  isLsr=false;
+	}
+	if(instruction_word>>27==12)
+	{
+	  isAsr=true;
+	}
+	else
+	{
+	  isAsr=false;
+	}
+	if(instruction_word>>27==7)
+	{
+	  isOr=true;
+	}
+	else
+	{
+	  isOr=false;
+	}
+	if(instruction_word>>27==6)
+	{
+	  isAnd=true;
+	}
+	else
+	{
+	  isAnd=false;
+	}
+	if(instruction_word>>27==8)
+	{
+	  isNot=true;
+	}
+	else
+	{
+	  isNot=false;
+	}
+	if(instruction_word>>27==9)
+	{
+	  isMov=true;
+	}
+	else
+	{
+	  isMov=false;
+	}
+	
+	if(isAdd||isSub||isMul||isDiv||isMod||isCmp||isLd||isSt||isLsl||isLsr||isAsr||isCall) 
+	{
+	  isWb=true;
+	}
+	else
+	{
+	  isWb=false;
+	}
+	
+	
+	
+}
 void decode() 
 {int e;
 if(isRet){
@@ -174,9 +364,14 @@ operand2=r[e];
  
  }
  if(isBranchTaken){
- 
- 
- 
+ branchPC=((instruction_word)& 0x07ffffff)<<2 ;
+if(( branchPC & 0x10000000)>0){
+     branchPC=(branchPC)|0xe0000000);
+}	 
+ if(( branchPC & 0x10000000)>0){
+     branchPC=(branchPC)|0x00000000);
+ }
+branchPC=PC+branchPC;	 
  }
  
  
@@ -188,13 +383,7 @@ operand2=r[e];
  
  
 //perform the memory operation
-rand1=r[e];
-}
-if(isSt){
 
-e=((instruction_word & 0x000001e0)>>5);
-operand2=r[e];
-}
 void execute() 
 {
 	
@@ -313,7 +502,7 @@ void execute()
 	unsigned int b=A<<1;
 	b=b>>B;
 	b=b|a;
-	aluResult=A|B;
+	aluResult=b;
 	return;
 	}
 	   
@@ -321,12 +510,49 @@ void execute()
 }
 
 void mem() {
+	if(isSt){
+write_word(Mem,aluResult,operand2)
+ }	
+if(isLd){
+LdResult=read_word(Mem,aluResult);
+}	
+	
+	
+	
 }
 //writes the results back to register file
 void write_back() {
+	int result;
+	int y;
+	if(isLd){
+	result=LdResult;
+	
+	}
+	else if(isCall){
+	result=PC+4;
+	}
+	else{
+	result=aluResult;
+	}
+
+  if(isCall){
+  r[15]=result;
+  
+  }else{
+	y=((instruction_word & 0x03c00000)>>22);  
+	  *(r+y)=result;
+  
+  
+  
+  
+  }
+  	
+	
+	
 }
 
-int * read_word(char *mem, unsigned int address) {
+
+int  read_word(char *mem, unsigned int address) {
   int *data;
   data =  (int*) (mem + address);
   return *data;
