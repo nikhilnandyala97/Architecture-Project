@@ -10,9 +10,10 @@ Date:
    Purpose of this file: implementation file for mySimpleSim
 */
 
-#include "mySimpleSim.h"
+//#include "mySimpleSim.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include<iostream>
 
 //Register file
 /*
@@ -27,9 +28,7 @@ Date:
    Purpose of this file: implementation file for mySimpleSim
 */
 
-#include "mySimpleSim.h"
-#include <stdlib.h>
-#include <stdio.h>
+
 
 //Register file
 static unsigned int R[16];
@@ -37,7 +36,7 @@ static int PC=-4;
 //flags
 static int gt,eq;
 //memory
-static unsigned char MEM[4000];
+static  char MEM[4000];
 static int immediate;
 //intermediate datapath and control path signals
 static unsigned int instruction_word;
@@ -53,6 +52,7 @@ static bool isDiv;
 static bool isMod;
 static bool isLsl;
 static bool isLsr;
+static bool isCmp;
 static bool isAsr;
 static bool isOr;
 static bool isAnd;
@@ -70,22 +70,78 @@ static int imm;
 static int aluResult;
 static int branchTarget;
 //static int imm;
+void fetch();
+void run_simplesim();
+void  decode();
+void    execute();
+void mem();
+void write_back();
+void control();
 static int LdResult;
+void write_word(char *mem, unsigned int address, unsigned int data);
+int  read_word(char *mem, unsigned int address) ;
+void reset_proc();
+void load_program_memory(char *file_name);
+
+
+
+
+
+int ui=0;
+int main(int argc, char** argv) {
+  char* prog_mem_file;
+  if(argc < 2) {
+    printf("Incorrect number of arguments. Please invoke the simulator \n\t./mySimpleSim <input mem file> \n");
+    exit(1);
+  }
+
+  //reset the processor
+  reset_proc();
+  
+  //load the program memory
+  load_program_memory(argv[1]);
+  //run the simulator
+  run_simplesim();
+ printf("%d",R[3]);
+  return 1;
+}
+
+
+
+
+
+
+
+
 void run_simplesim() {
-  while(1) {
+int io=0;
+  while(io<ui) {
     fetch();
+     printf("fetch\n");
+    control();
+	printf("control\n");
     decode();
+printf("deco\n");
     execute();
+printf("exex\n");
     mem();
+printf("mem\n");
     write_back();
+printf("wrie\n");
+io++;
   }
 }
 
 // it is used to set the reset values
 //reset all registers and memory content to 0
 void reset_proc() {
-	
-	
+int k;
+for( k=0;k<16;k++){
+R[k]=0;
+}	
+for( k=0;k<4000;k++){
+MEM[k]='\0';
+}	
 	
 
 }
@@ -101,6 +157,7 @@ void load_program_memory(char *file_name) {
     exit(1);
   }
   while( fscanf(fp, "%x %x", &address, &instruction) != EOF) {
+ui++;
     write_word(MEM, address, instruction);
   }
   fclose(fp);
@@ -126,15 +183,15 @@ void write_data_memory() {
 void fetch()
 {
           if(isBranchTaken){
-             PC=BranchPc;
+             PC=branchPC;
                  }
            else{
 		PC=PC+4;
                } 
 
           
-	unsigned int *a=read_word(MEM,PC);
-	instruction_word=*a;	
+	unsigned int a=read_word(MEM,PC);
+	instruction_word=a;	
 	
 }
 void control()
@@ -179,7 +236,7 @@ void control()
 	{
 	  isRet=false;
 	}
-	if((instruction_word|0x04000000)>0)
+	if((instruction_word & 0x04000000)>>26 ==1)
 	{
 	  isImm=true;
 	}
@@ -325,25 +382,25 @@ void decode()
 {int e;
 if(isRet){
 
-operand1=r[15];
+operand1=R[15];
 
 }
 else{
 
 e=((instruction_word & 0x003c0000)>>18);
 
-operand1=r[e];
+operand1=R[e];
 }
 if(isSt){
 
 e=((instruction_word & 0x03c00000)>>22);
-operand2=r[e];
+operand2=R[e];
 }
 else{
 
 e=((instruction_word & 0x0003c000)>>14);
 
-operand2=r[e];
+operand2=R[e];
 }
  if(isImm){
  if(((instruction_word & 0x00030000)>>16)==0){
@@ -366,10 +423,10 @@ operand2=r[e];
  if(isBranchTaken){
  branchPC=((instruction_word)& 0x07ffffff)<<2 ;
 if(( branchPC & 0x10000000)>0){
-     branchPC=(branchPC)|0xe0000000);
+     branchPC=((branchPC)|0xe0000000);
 }	 
  if(( branchPC & 0x10000000)>0){
-     branchPC=(branchPC)|0x00000000);
+     branchPC=((branchPC)|0x00000000);
  }
 branchPC=PC+branchPC;	 
  }
@@ -401,10 +458,10 @@ void execute()
 
 	/*ALU PART */
 	int A,B;	
-	if(isImm==1)
-	B=imm;
-	else
-	B=operand2;
+	if(isImm){
+	B=imm;}
+	else{
+	B=operand2;}
 	A=operand1;
 	if(isMul)
 	{
@@ -429,13 +486,13 @@ void execute()
 	
 	else if(isNot)
 	{
-	aluResult=A|B; /*HAVE TO DO*/
+	aluResult=~B; 
 	return;
 	}
 	
-	else if(isMov) /*HAVE TO DO*/
+	else if(isMov) 
 	{
-	aluResult=A|B;
+	aluResult=B;
 	return;
 	}
 	
@@ -448,6 +505,7 @@ void execute()
 	else if(isAdd)
 	{
 	aluResult=A+B;
+	
 	return;
 	}
 
@@ -511,10 +569,10 @@ void execute()
 
 void mem() {
 	if(isSt){
-write_word(Mem,aluResult,operand2)
+write_word(MEM,aluResult,operand2);
  }	
 if(isLd){
-LdResult=read_word(Mem,aluResult);
+LdResult=read_word(MEM,aluResult);
 }	
 	
 	
@@ -536,11 +594,11 @@ void write_back() {
 	}
 
   if(isCall){
-  r[15]=result;
+  R[15]=result;
   
   }else{
 	y=((instruction_word & 0x03c00000)>>22);  
-	  *(r+y)=result;
+	  *(R+y)=result;
   
   
   
