@@ -530,15 +530,15 @@ void execute()
 	return;
 	}
 	
-	else if(isLd)  /*HAVE TO DO*/
+	else if(isLd)  
 	{
-	aluResult=A|B;
+	aluResult=A+B;
 	return;
 	}
 	
 	else if(isSt)
 	{
-	aluResult=A|B;
+	aluResult=A+B;
 	return;
 	}
 	
