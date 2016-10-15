@@ -14,7 +14,7 @@ Date:
 #include <stdlib.h>
 #include <stdio.h>
 #include<iostream>
-
+using namespace std;
 //Register file
 /*
 The project is developed as part of Computer Architecture class
@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
   load_program_memory(argv[1]);
   //run the simulator
   run_simplesim();
- printf("%d",R[3]);
+ //cout<<R[3]<<endl;
   return 1;
 }
 
@@ -115,21 +115,18 @@ int main(int argc, char** argv) {
 
 void run_simplesim() {
 int io=0;
-  while(io<ui) {
+  while(1) {
     fetch();
-     printf("fetch\n");
+    if(instruction_word==0)
+	break;
     control();
-	printf("control\n");
     decode();
-printf("deco\n");
     execute();
-printf("exex\n");
     mem();
-printf("mem\n");
     write_back();
-printf("wrie\n");
-io++;
+//cout<<"-----------------\n"<<R[2]<<endl;
   }
+cout<<"------------------"<<endl<<R[3];
 }
 
 // it is used to set the reset values
@@ -148,7 +145,8 @@ MEM[k]='\0';
 
 //load_program_memory reads the input memory, and pupulates the instruction
 // memory
-void load_program_memory(char *file_name) {
+void load_program_memory(char *file_name)
+ {
   FILE *fp;
   unsigned int address, instruction;
   fp = fopen(file_name, "r");
@@ -191,7 +189,8 @@ void fetch()
 
           
 	unsigned int a=read_word(MEM,PC);
-	instruction_word=a;	
+	instruction_word=a;
+	cout<<instruction_word<<endl;
 	
 }
 void control()
@@ -366,9 +365,10 @@ void control()
 	  isMov=false;
 	}
 	
-	if(isAdd||isSub||isMul||isDiv||isMod||isCmp||isLd||isSt||isLsl||isLsr||isAsr||isCall) 
+	if(isAdd||isSub||isMul||isDiv||isMod||isLd||isSt||isLsl||isLsr||isAsr||isCall||isMov) 
 	{
 	  isWb=true;
+	  //cout<<"WB IS RUNNING\n";
 	}
 	else
 	{
@@ -380,10 +380,10 @@ void control()
 }
 void decode() 
 {int e;
-if(isRet){
-
+if(isRet)
+{
 operand1=R[15];
-
+cout<<"RETURN INS"<<endl;
 }
 else{
 
@@ -392,7 +392,7 @@ e=((instruction_word & 0x003c0000)>>18);
 operand1=R[e];
 }
 if(isSt){
-
+cout<<"STORE_INS"<<endl;
 e=((instruction_word & 0x03c00000)>>22);
 operand2=R[e];
 }
@@ -406,7 +406,6 @@ operand2=R[e];
  if(((instruction_word & 0x00030000)>>16)==0){
  imm=(instruction_word & 0x0000ffff);
 	 
- 
  }
  if(((instruction_word & 0x00030000)>>16)==1){
  imm=(instruction_word | 0xffff0000);
@@ -420,15 +419,16 @@ operand2=R[e];
  }
  
  }
- if(isBranchTaken){
- branchPC=((instruction_word)& 0x07ffffff)<<2 ;
-if(( branchPC & 0x10000000)>0){
-     branchPC=((branchPC)|0xe0000000);
+ if(isUBranch||isBgt||isBeq){
+cout<<"BRANCH INS "<<endl;
+ branchTarget=((instruction_word)& 0x07ffffff)<<2 ;
+if(( branchTarget & 0x10000000)>0){
+     branchTarget=((branchTarget)|0xe0000000);
 }	 
- if(( branchPC & 0x10000000)>0){
-     branchPC=((branchPC)|0x00000000);
+ if(( branchTarget & 0x10000000)>0){
+     branchTarget=((branchTarget)|0x00000000);
  }
-branchPC=PC+branchPC;	 
+branchTarget=PC+branchTarget;	 
  }
  
  
@@ -452,10 +452,11 @@ void execute()
 
         /*2 nd Part*/
 	if(isUBranch||(isBeq&&eq)||(isBgt&&gt))
-	isBranchTaken=1;
+	{
+	isBranchTaken=true;
+	}
 	else 
-	isBranchTaken=0;
-
+	isBranchTaken=false;
 	/*ALU PART */
 	int A,B;	
 	if(isImm){
@@ -465,93 +466,96 @@ void execute()
 	A=operand1;
 	if(isMul)
 	{
+	cout<<"MULTIPLICATION "<<endl;
+       // cout<<A<<"-"<<B<<"-"<<endl;
 	aluResult=A*B;
-	return;
 	}
 	else if(isDiv)
 	{
+	cout<<"DIV "<<endl;
 	aluResult=A/B;
-	return;
+	
 	}
 	else if(isMod)
 	{
+	cout<<"MOD "<<endl;
 	aluResult=A%B;
-	return;
 	}
 	else if(isOr)
 	{
+	cout<<"Or "<<endl;
 	aluResult=A|B;
-	return;
 	}
 	
 	else if(isNot)
 	{
 	aluResult=~B; 
-	return;
+	cout<<"NOT "<<endl;
 	}
 	
 	else if(isMov) 
 	{
+	
 	aluResult=B;
-	return;
+	cout<<"MOV "<<endl;
+	//cout<<operand2<<endl;
 	}
 	
 	else if(isAnd)
 	{
 	aluResult=A&B;
-	return;
+	cout<<"AND "<<endl;
 	}
 
 	else if(isAdd)
 	{
+	cout<<"ADD "<<endl;
 	aluResult=A+B;
-	
-	return;
 	}
 
 	else if(isSub)
 	{
+	cout<<"SUB "<<endl;
 	aluResult=A-B;
-	return;
 	}
 
 	else if(isCmp)
 	{
+	cout<<"CMP INS "<<endl;
 	if(A>B)
 	{
-	   eq=0;
-	   gt=1;	
+	   eq=false;
+	   gt=true;	
 	}
 	else if(A==B)
 	{
-	   eq=1;
-	   gt=0;
+	   eq=true;
+	   gt=false;
 	}
-	return;
 	}
 	
 	else if(isLd)  
 	{
+	cout<<"LOAD "<<endl;
 	aluResult=A+B;
-	return;
 	}
 	
 	else if(isSt)
 	{
+	cout<<"STORE "<<endl;
 	aluResult=A+B;
-	return;
 	}
 	
 	else if(isLsl)
 	{
+	cout<<"LSL "<<endl;
 	aluResult=A<<B;
-	return;
 	}
 	
 	else if(isLsr)
 	{
+	cout<<"LSR "<<endl;
 	aluResult=A>>B;
-	return;
 	}
 	
 	else if(isAsr)
@@ -561,9 +565,9 @@ void execute()
 	b=b>>B;
 	b=b|a;
 	aluResult=b;
-	return;
+	cout<<"ASR "<<endl;
 	}
-	   
+		cout<<"ALU RESULT IS "<<aluResult<<endl;   
 	
 }
 
@@ -579,34 +583,35 @@ LdResult=read_word(MEM,aluResult);
 	
 }
 //writes the results back to register file
-void write_back() {
+void write_back() 
+{
 	int result;
 	int y;
-	if(isLd){
+	if(isLd)
+	{
 	result=LdResult;
-	
 	}
 	else if(isCall){
 	result=PC+4;
 	}
-	else{
+	else
+	{
 	result=aluResult;
 	}
+	if(isWb)
+	{
 
-  if(isCall){
-  R[15]=result;
-  
-  }else{
-	y=((instruction_word & 0x03c00000)>>22);  
-	  *(R+y)=result;
-  
-  
-  
-  
-  }
-  	
-	
-	
+	if(isCall)
+	{
+	  R[15]=result;
+  	}
+	else
+	{
+	y=((instruction_word & 0x03c00000)>>22);
+	R[y]=result;
+  	//cout<<"Dest "<<y<<endl;  
+  	}	
+	}
 }
 
 
