@@ -17,7 +17,8 @@ Date:
 #include "mySimpleSim.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include<iostream>
+using namespace std;
 int main(int argc, char** argv) {
   char* prog_mem_file;
   if(argc < 2) {
