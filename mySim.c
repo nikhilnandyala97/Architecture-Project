@@ -2,32 +2,21 @@
 /*
 The project is developed as part of Computer Architecture class
 Project Name: Functional/Pipeline Simulator for simpleRISC Processor
-Developer's Name:
-Developer's Email id:
-Date:
+Developer's Name:Nikhil>N ,Allu Krishna Sai Teja
+Developer's Email id:2015csb1020@iitrpr.ac.in,2015csb1009@iitrpr.ac.in
+Date:16/10/2016
 */
 
 /* mySimpleSim.cpp
    Purpose of this file: implementation file for mySimpleSim
 */
 
-//#include "mySimpleSim.h"
-#include <stdlib.h>
+
+#include "mySimpleSim.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include<iostream>
 using namespace std;
-//Register file
-/*
-The project is developed as part of Computer Architecture class
-Project Name: Functional/Pipeline Simulator for simpleRISC Processor
-Developer's Name:
-Developer's Email id:
-Date:
-*/
-
-/* mySimpleSim.cpp
-   Purpose of this file: implementation file for mySimpleSim
-*/
 
 
 
@@ -70,42 +59,15 @@ static bool isCall;
 static int imm;
 static int aluResult;
 static int branchTarget;
-//static int imm;
-void fetch();
-void run_simplesim();
-void  decode();
-void    execute();
-void mem();
-void write_back();
-void control();
 static int LdResult;
-void write_word(char *mem, unsigned int address, unsigned int data);
-int  read_word(char *mem, unsigned int address) ;
-void reset_proc();
-void load_program_memory(char *file_name);
+//static int imm;
+
 
 
 
 
 
 int ui=0;
-int main(int argc, char** argv) {
-  char* prog_mem_file;
-  if(argc < 2) {
-    printf("Incorrect number of arguments. Please invoke the simulator \n\t./mySimpleSim <input mem file> \n");
-    exit(1);
-  }
-
-  //reset the processor
-  reset_proc();
-  
-  //load the program memory
-  load_program_memory(argv[1]);
-  //run the simulator
-  run_simplesim();
- cout<<R[1]<<endl;
-  return 1;
-}
 
 
 
@@ -125,11 +87,9 @@ int io=0;
     execute();
     mem();
     write_back();
-//cout<<"-----------------\n"<<R[2]<<endl;
+
   }
-//for(int i=256;i<300;i=i+4)
-//cout<<read_word(MEM,i)<<endl;
-//cout<<"------------------"<<endl<<R[3];
+
 }
 
 // it is used to set the reset values
@@ -194,7 +154,7 @@ void fetch()
           
 	unsigned int a=read_word(MEM,PC);
 	instruction_word=a;
-	cout<<instruction_word<<endl;
+	
 	
 }
 void control()
@@ -372,7 +332,7 @@ void control()
 	if(isAdd||isSub||isMul||isDiv||isMod||isLd||isLsl||isLsr||isAsr||isCall||isMov||isAnd||isOr||isNot) 
 	{
 	  isWb=true;
-	  //cout<<"WB IS RUNNING\n";
+
 	}
 	else
 	{
@@ -408,11 +368,17 @@ operand2=R[e];
 }
  if(isImm){
  if(((instruction_word & 0x00030000)>>16)==0){
- imm=(instruction_word & 0x0000ffff);
+if(((instruction_word& 0x00008000)>>15)==1){
+imm=(instruction_word | 0xffff0000);
+}
+else{
+imm=(instruction_word & 0x0000ffff);
+}
+ 
 	 
  }
  if(((instruction_word & 0x00030000)>>16)==1){
- imm=(instruction_word | 0xffff0000);
+ imm=(instruction_word | 0x0000ffff);
 	 
  
  }
@@ -471,7 +437,7 @@ void execute()
 	if(isMul)
 	{
 	cout<<"MULTIPLICATION "<<endl;
-       // cout<<A<<"-"<<B<<"-"<<endl;
+      
 	aluResult=A*B;
 	}
 	else if(isDiv)
