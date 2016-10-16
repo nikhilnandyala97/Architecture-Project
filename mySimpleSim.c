@@ -1,3 +1,4 @@
+
 /*
 The project is developed as part of Computer Architecture class
 Project Name: Functional/Pipeline Simulator for simpleRISC Processor
@@ -126,6 +127,8 @@ int io=0;
     write_back();
 //cout<<"-----------------\n"<<R[2]<<endl;
   }
+for(int i=256;i<300;i=i+4)
+cout<<read_word(MEM,i)<<endl;
 cout<<"------------------"<<endl<<R[3];
 }
 
@@ -365,7 +368,7 @@ void control()
 	  isMov=false;
 	}
 	
-	if(isAdd||isSub||isMul||isDiv||isMod||isLd||isSt||isLsl||isLsr||isAsr||isCall||isMov) 
+	if(isAdd||isSub||isMul||isDiv||isMod||isLd||isLsl||isLsr||isAsr||isCall||isMov||isAnd||isOr||isNot) 
 	{
 	  isWb=true;
 	  //cout<<"WB IS RUNNING\n";
@@ -544,6 +547,7 @@ void execute()
 	{
 	cout<<"STORE "<<endl;
 	aluResult=A+B;
+	cout<<"A IS "<<R[13]<<endl;
 	}
 	
 	else if(isLsl)
@@ -574,6 +578,7 @@ void execute()
 void mem() {
 	if(isSt){
 write_word(MEM,aluResult,operand2);
+cout<<operand2<<"   "<<aluResult<<endl;
  }	
 if(isLd){
 LdResult=read_word(MEM,aluResult);
@@ -600,7 +605,6 @@ void write_back()
 	}
 	if(isWb)
 	{
-
 	if(isCall)
 	{
 	  R[15]=result;
@@ -609,7 +613,7 @@ void write_back()
 	{
 	y=((instruction_word & 0x03c00000)>>22);
 	R[y]=result;
-  	//cout<<"Dest "<<y<<endl;  
+  	cout<<"Dest "<<y<<endl;  
   	}	
 	}
 }
