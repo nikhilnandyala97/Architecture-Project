@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
   load_program_memory(argv[1]);
   //run the simulator
   run_simplesim();
- //cout<<R[3]<<endl;
+ cout<<R[1]<<endl;
   return 1;
 }
 
@@ -127,9 +127,9 @@ int io=0;
     write_back();
 //cout<<"-----------------\n"<<R[2]<<endl;
   }
-for(int i=256;i<300;i=i+4)
-cout<<read_word(MEM,i)<<endl;
-cout<<"------------------"<<endl<<R[3];
+//for(int i=256;i<300;i=i+4)
+//cout<<read_word(MEM,i)<<endl;
+//cout<<"------------------"<<endl<<R[3];
 }
 
 // it is used to set the reset values
@@ -139,6 +139,7 @@ int k;
 for( k=0;k<16;k++){
 R[k]=0;
 }	
+R[14]=3000;
 for( k=0;k<4000;k++){
 MEM[k]='\0';
 }	
@@ -422,7 +423,7 @@ operand2=R[e];
  }
  
  }
- if(isUBranch||isBgt||isBeq){
+ if(isUBranch||isBgt||isBeq||isCall){
 cout<<"BRANCH INS "<<endl;
  branchTarget=((instruction_word)& 0x07ffffff)<<2 ;
 if(( branchTarget & 0x10000000)>0){
@@ -454,7 +455,7 @@ void execute()
         branchPC=branchTarget;
 
         /*2 nd Part*/
-	if(isUBranch||(isBeq&&eq)||(isBgt&&gt))
+	if(isUBranch||(isBeq&&eq)||(isBgt&&gt)||isCall||isRet)
 	{
 	isBranchTaken=true;
 	}
